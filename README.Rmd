@@ -1,0 +1,51 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# ReferenceEnhancer
+
+The goal of ReferenceEnhancer is to generate a scRNA-seq optimized transcriptomic reference.
+
+Generating a scRNA-seq optimized transcriptomic reference requires optimizing the genome annotation ("xxx.gtf") file that transcriptomic references are based on.
+
+The following three aspects of genome annotations need to be optimized: A) Resolving gene overlap derived read loss; B) Recovering intergenic reads from 3' un-annotated exons; and C) Recovering intronic reads.
+
+After optimizing and assembling the genome annotation, you can use "cellranger mkref" pipeline to assemble the optimized transcriptomic reference for mapping sequencing read data and compiling gene-cell matrices with the "cellranger count" (or other) pipeline.
+
+## Installation
+
+You can install the development version of ReferenceEnhancer like so:
+
+``` r
+install.packages("devtools")
+require(devtools)
+install_github("PoolLab/ReferenceEnhancer")
+```
+
+## Example
+
+This is a basic example which shows you how to solve a common problem:
+
+```{r example}
+library(ReferenceEnhancer)
+
+genome_annotation <- LoadGtf("test_genes.gtf")
+gene_overlaps <- IdentifyOverlappers(genome_annotation)
+OverlapResolutions(genome_annotation, gene_overlaps)
+IsolateIntergenicReads("test_bam.bam", "test_index.bam.bai")
+GenerateGeneLocationBed(genome_annotation)
+GenerateExtensionCandidates()
+PremrnaAnnotationGenerator(genome_annotation)
+OptimizedAnnotationAssembler("test_genes.gtf", "premrna.gtf", "overlapping_gene_list.csv", "gene_extension_candidates.csv", "test_gene_replacement.csv")
+```

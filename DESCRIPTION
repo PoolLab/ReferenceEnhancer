@@ -1,0 +1,27 @@
+Package: ReferenceEnhancer
+Title: Generates A ScRNA-seq Optimized Transcriptomic Reference.
+Version: 0.0.0.9000
+Authors@R: 
+    person("Allan-Hermann", "Pool", , "allan-hermann.pool@utsouthwestern.edu", role = c("aut", "cre"))
+    person("Helen", "Poldsam", , "helen.poldsam@utsouthwestern.edu", role = c("aut", "cre"))
+Description: Generating a scRNA-seq optimized transcriptomic reference requires optimizing 
+  the genome annotation ("xxx.gtf") file that transcriptomic references are based on.  The 
+  following three aspects of genome annotations need to be optimized:
+  A) Resolving gene overlap derived read loss;
+  B) Recovering intergenic reads from 3’ un-annotated exons; and
+  C) Recovering intronic reads.
+  After optimizing and assembling the genome annotation, you can use "cellranger mkref"
+  pipeline to assemble the optimized transcriptomic reference for mapping sequencing read
+  data and compiling gene-cell matrices with the "cellranger count" (or other) pipeline.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Imports: 
+    GenomicAlignments,
+    GenomicRanges,
+    IRanges,
+    readr,
+    Rsamtools,
+    rtracklayer,
+    stringr
