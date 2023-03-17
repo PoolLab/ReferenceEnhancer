@@ -1,18 +1,3 @@
----
-output: github_document
----
-
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%"
-)
-```
-
 # ReferenceEnhancer
 
 The goal of ReferenceEnhancer is to generate a scRNA-seq optimized transcriptomic reference.
@@ -25,7 +10,7 @@ After optimizing and assembling the genome annotation, you can use "cellranger m
 
 ## Installation
 
-You can install the development version of ReferenceEnhancer like so:
+You can install the development version of ReferenceEnhancer as follows:
 
 ``` r
 install.packages("devtools")
@@ -35,7 +20,7 @@ install_github("PoolLab/ReferenceEnhancer")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+This is the basic workflow for optimizing a genome annotation for single-cell RNA-seq work using ReferenceEnhancer:
 
 ```{r example}
 library(ReferenceEnhancer)
