@@ -12,11 +12,10 @@ After optimizing and assembling the genome annotation, you can use "cellranger m
 
 You can install the development version of ReferenceEnhancer as follows:
 
-``` r
 install.packages("devtools")
 require(devtools)
 install_github("PoolLab/ReferenceEnhancer")
-```
+
 
 ## Example
 
@@ -30,44 +29,38 @@ This file can be downloaded from 10x Genomics provided reference transcriptome "
 
 For testing, we have provided a sample file.
 
-```{library(ReferenceEnhancer)}
+library(referenceenhancer)
 genome_annotation <- LoadGtf("test_genes.gtf")
-```
+
 
 2.  Identify all overlapping genes based on the ENSEMBL/10x Genomics default genome annotation file (GTF), rank-order them according to the number of gene overlaps.
 
 Prioritize this gene list for manual curation focusing on exonically overlapping genes. The function saves the list of overlapping genes in working directory as overlapping_gene_list.csv.
 
-```{gene_overlaps <- IdentifyOverlappers(genome_annotation)}
-```
+gene_overlaps <- IdentifyOverlappers(genome_annotation)
 
 3.  Generate recommended actions for overlapping genes based on original genome annotation .gtf file and a list of overlapping genes.
 
 The function updates overlapping_gene_list.csv file with added recommendations.
 
-```{OverlapResolutions(genome_annotation, gene_overlaps, c("Rik$", "^Gm"))}
-```
+OverlapResolutions(genome_annotation, gene_overlaps, c("Rik$", "^Gm"))
 
 4.  Extract intergenic reads from Cell Ranger aligned bam file. The function saves extracted intergenic reads in working directory as intergenic_reads.bed.
 
-```{IsolateIntergenicReads("test_bam.bam", "test_index.bam.bai")}
-```
+IsolateIntergenicReads("test_bam.bam", "test_index.bam.bai")
 
 5.  Generate gene boundaries in order to assign intergenic reads to a specific gene. The function save resulting in working directory as gene_ranges.bed.
 
 Note: This step runs partially in bash/linux terminal. Before this step, make sure that bedops (<https://bedops.readthedocs.io/en/latest/>) has been installed to your computer.
 
-```{GenerateGeneLocationBed(genome_annotation)}
-```
+generategenelocationbed(genome_annotation)
 
 6.  Identify candidate genes for extension with excess 3' intergenic reads and create a rank ordered list of genes as a function of 3' intergenic read mapping within 10kb of known gene end. A rank ordered list of gene extension candidates is saved in working directory as gene_extension_candidates.csv.
 
 Note: This step runs partially in bash/linux terminal. Before this step, make sure that bedtools (<https://bedtools.readthedocs.io/en/latest/content/installation.html>) has been installed to your computer and that it has been added to to the path in your R environment.
 
-```{GenerateExtensionCandidates()}
-```
+generateextensioncandidates()
 
 7.  Create the final optimized annotation file. The function saves the result in working directory as optimized_reference.gtf.
 
-```{OptimizedAnnotationAssembler("test_genes.gtf", "test_overlapping_gene_list.csv", "gene_extension_candidates.csv", "test_gene_replacement.csv")}
-```
+OptimizedAnnotationAssembler("test_genes.gtf", "test_overlapping_gene_list.csv", "gene_extension_candidates.csv", "test_gene_replacement.csv")
