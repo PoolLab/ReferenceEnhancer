@@ -29,7 +29,7 @@ This file can be downloaded from 10x Genomics provided reference transcriptome "
 
 For testing, we have provided a sample file.
 
-library(referenceenhancer)
+library(ReferenceEnhancer)
 genome_annotation <- LoadGtf("test_genes.gtf")
 
 
@@ -53,13 +53,13 @@ IsolateIntergenicReads("test_bam.bam", "test_index.bam.bai")
 
 Note: This step runs partially in bash/linux terminal. Before this step, make sure that bedops (<https://bedops.readthedocs.io/en/latest/>) has been installed to your computer.
 
-generategenelocationbed(genome_annotation)
+GenerateGeneLocationBed(genome_annotation)
 
 6.  Identify candidate genes for extension with excess 3' intergenic reads and create a rank ordered list of genes as a function of 3' intergenic read mapping within 10kb of known gene end. A rank ordered list of gene extension candidates is saved in working directory as gene_extension_candidates.csv.
 
 Note: This step runs partially in bash/linux terminal. Before this step, make sure that bedtools (<https://bedtools.readthedocs.io/en/latest/content/installation.html>) has been installed to your computer and that it has been added to to the path in your R environment.
 
-generateextensioncandidates()
+GenerateExtensionCandidates() # specify path to bedtools on your system if this is generates an error
 
 7.  Create the final optimized annotation file. The function saves the result in working directory as optimized_reference.gtf.
 
