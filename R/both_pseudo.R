@@ -1,3 +1,14 @@
-both_pseudo <- function(key, overlapping){
-  return((stringr::str_sub(key, 1, 2) == 'Gm' | stringr::str_sub(key, - 3, - 1) == 'Rik') & (stringr::str_sub(overlapping, 1, 2) == 'Gm' | stringr::str_sub(overlapping, - 3, - 1) == 'Rik'))
-}
+both_pseudo <- function(key, overlapping, gene_pattern){
+
+  if (missing(gene_pattern)){
+    return(FALSE)
+  }
+
+  else{
+    key_pseudo = sum(stringr::str_detect(key, gene_pattern))
+    overlapping_pseudo = sum(stringr::str_detect(overlapping, gene_pattern))
+    return((key_pseudo + overlapping_pseudo) > 1)
+
+  }
+
+  }

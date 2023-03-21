@@ -4,7 +4,7 @@
 \alias{GenerateGeneLocationBed}
 \title{GenerateGeneLocationBed}
 \usage{
-GenerateGeneLocationBed(genome_annotation)
+GenerateGeneLocationBed(genome_annotation, bedops_loc = NULL)
 }
 \arguments{
 \item{genome_annotation}{Genome annotation file in .gtf format.}
@@ -25,5 +25,5 @@ Assuming that it is named "genes.gtf" per 10x Genomics convention.
 }
 \examples{
 genome_annotation <- LoadGtf("test_genes.gtf")
-GenerateGeneLocationBed(genome_annotation)
+GenerateGeneLocationBed(genome_annotation, bedops_loc)
 }

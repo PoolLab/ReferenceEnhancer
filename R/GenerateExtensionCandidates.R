@@ -12,13 +12,23 @@
 #' @export
 #'
 #' @examples
-#' GenerateExtensionCandidates()
-GenerateExtensionCandidates <- function(){
+#' GenerateExtensionCandidates(bedtools_loc)
+GenerateExtensionCandidates <- function(bedtools_loc = NULL){
 
   ## In bash/linux terminal: Make sure bedtools is in PATH (make sure bedtools is installed and in the PATH variable in Linux or MacOS)
 
   system("sort -k 1,1 -k2,2n gene_ranges.bed > gene_ranges1.bed")
   system("sort -k 1,1 -k2,2n intergenic_reads.bed > intergenic_reads1.bed")
+
+  if(length(bedtools_loc) != 0){
+    old_path <- Sys.getenv("PATH")
+    Sys.setenv(PATH = paste(old_path, bedtools_loc, sep = ":"))
+  }
+
+  else{
+    old_path <- Sys.getenv("PATH")
+    Sys.setenv(PATH = paste(old_path, "/Applications/bedtools2/bin", sep = ":"))
+  }
 
   system("bedtools closest -a intergenic_reads1.bed -b gene_ranges1.bed -s -D a -fu > results.txt") # resulting file contains sequencing reads with distance data from closest 3' gene identity and end
 

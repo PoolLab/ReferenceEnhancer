@@ -4,7 +4,7 @@
 \alias{GenerateExtensionCandidates}
 \title{GenerateExtensionCandidates}
 \usage{
-GenerateExtensionCandidates()
+GenerateExtensionCandidates(bedtools_loc = NULL)
 }
 \value{
 Rank ordered list of gene extension candidates saved to working directory as gene_extension_candidates.csv
@@ -19,5 +19,5 @@ Note: It runs partially in bash/linux terminal. Make sure bedtools is installed 
 in PATH variable in Linux or MacOS.
 }
 \examples{
-GenerateExtensionCandidates()
+GenerateExtensionCandidates(bedtools_loc)
 }

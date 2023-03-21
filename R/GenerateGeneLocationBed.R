@@ -17,8 +17,8 @@
 #'
 #' @examples
 #' genome_annotation <- LoadGtf("test_genes.gtf")
-#' GenerateGeneLocationBed(genome_annotation)
-GenerateGeneLocationBed <- function(genome_annotation){
+#' GenerateGeneLocationBed(genome_annotation, bedops_loc)
+GenerateGeneLocationBed <- function(genome_annotation, bedops_loc = NULL){
   gene_ranges_df <- genome_annotation
   gene_ranges_df <- gene_ranges_df[gene_ranges_df$type == "gene",] # Extract all "gene" entries in the genome annotation ot a new variable
   gene_ranges_df <- GenomicRanges::makeGRangesFromDataFrame(gene_ranges_df, keep.extra.columns=TRUE)
@@ -28,6 +28,15 @@ GenerateGeneLocationBed <- function(genome_annotation){
   system('awk \'{ if ($0 ~ "transcript_id") print $0; else print $0" transcript_id \"\";"; }\' gene_ranges.gtf > gene_ranges1.gtf')
 
   ## Convert reference gtf into bed with bedops (make sure bedops is in the PATH variable for linux or MAcOS)
+  if(length(bedops_loc) != 0){
+    old_path <- Sys.getenv("PATH")
+    Sys.setenv(PATH = paste(old_path, bedops_loc, sep = ":"))
+  }
+
+  else{
+    old_path <- Sys.getenv("PATH")
+    Sys.setenv(PATH = paste(old_path, "/usr/bin/bedops", sep = ":"))
+  }
 
   system('gtf2bed < gene_ranges1.gtf > gene_ranges.bed') # Creates a bed file with gene boundaries
 
@@ -45,7 +54,11 @@ GenerateGeneLocationBed <- function(genome_annotation){
     }
   }
 
-  ## In R: save outcome
+  ## Remove gene_ranges.gtf
+  file.remove("./gene_ranges.gtf")
+  file.remove("./gene_ranges1.gtf")
+
+  ## Save outcome
   write.table(gene_ranges, "gene_ranges.bed", sep="\t",row.names=FALSE, col.names=FALSE, quote = FALSE)
   print("Gene ranges file (gene_ranges.bed) has been saved in working directory.")
 

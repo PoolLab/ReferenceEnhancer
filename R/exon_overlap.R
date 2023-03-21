@@ -1,8 +1,6 @@
 exon_overlap <- function(gene_A_exons, gene_B_exons){
-  #print(gene_A_exons)
-  #print(dim(gene_B_exons)[1])
 
-  if(dim(gene_A_exons)[1] | dim(gene_B_exons)[1]){
+  if(dim(gene_A_exons)[1] == 0 | dim(gene_B_exons)[1] == 0){
     return (FALSE)
   }
 

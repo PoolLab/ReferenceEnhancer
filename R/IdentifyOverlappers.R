@@ -50,6 +50,7 @@ IdentifyOverlappers <- function(genome_annotation){
   overlapping_gene_list["automatic_classification"] <- ""
   overlapping_gene_list["final_classification"] <- ""
   overlapping_gene_list["transcripts_for_deletion"] <- ""
+  overlapping_gene_list["comments"] <- ""
 
   write_csv(overlapping_gene_list, 'overlapping_gene_list.csv')
   print("A list of overlapping genes has been saved in your working directory (overlapping_gene_list.csv) for manual curation.")

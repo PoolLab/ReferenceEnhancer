@@ -1,21 +1,31 @@
-pseudo_overlap <- function(key, overlapping, gene_A_exons, gene_B_exons){
-  # Check for exon overlap
-  if(stringr::str_sub(key, 1, 2) == 'Gm' | stringr::str_sub(key, - 3, - 1) == 'Rik' | stringr::str_sub(overlapping, 1, 2) == 'Gm' | stringr::str_sub(overlapping, - 3, - 1) == 'Rik'){
-    if(exon_overlap(gene_A_exons, gene_B_exons) == TRUE){
-      # Check if gene_A is a pseudogene
-      if(stringr::str_sub(key, 1, 2) == 'Gm' | stringr::str_sub(key, - 3, - 1) == 'Rik'){
-        return(key)
-      }
-      else{
-        return(overlapping)
-      }
-    }
-    else{
-      return('exonic')
-    }
+pseudo_overlap <- function(key, overlapping, gene_A_exons, gene_B_exons, gene_pattern){
+
+  if(missing(gene_pattern)){
+    return('empty')
   }
 
   else{
-    return('empty')
+    # Check for exon overlap
+    if(sum(stringr::str_detect(key, gene_pattern)) > 0 | sum(stringr::str_detect(overlapping, gene_pattern)) > 0 ){
+      if(exon_overlap(gene_A_exons, gene_B_exons) == TRUE){
+        # Check if gene_A is a pseudogene
+        if(sum(stringr::str_detect(key, gene_pattern)) > 0){
+          return(key)
+        }
+        else{
+          return(overlapping)
+        }
+      }
+      else{
+        return('exonic')
+      }
+    }
+
+    else{
+      return('empty')
+    }
+
+
   }
+
 }

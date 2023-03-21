@@ -12,8 +12,8 @@
 #' @examples
 #' genome_annotation <- LoadGtf("test_genes.gtf")
 #' gene_overlaps <- IdentifyOverlappers(genome_annotation)
-#' OverlapResolutions(genome_annotation, gene_overlaps)
-OverlapResolutions <- function(genome_annotation, overlap_data){
+#' OverlapResolutions(genome_annotation, gene_overlaps, gene_pattern)
+OverlapResolutions <- function(genome_annotation, overlap_data, gene_pattern){
   gene_list <- unique(overlap_data$gene)
   gene_address <- rep(0, length(gene_list))
   for (i in 1:length(gene_list)){
@@ -74,23 +74,23 @@ OverlapResolutions <- function(genome_annotation, overlap_data){
         gene_B_exons = return_exons(gene_B)
 
         # Check if both - key and overlapping gene - are pseudogenes
-        if(both_pseudo(key, overlapping) == TRUE){
+        if(both_pseudo(key, overlapping, gene_pattern) == TRUE){
           overlap_data[key, 'automatic_classification'] = 'Manual inspection'
           overlap_data[overlapping[[1]], 'automatic_classification'] = 'Manual inspection'
         }
 
         # Check for pseudogene
-        else if(pseudo_overlap(key, overlapping, gene_A_exons, gene_B_exons) == key){
+        else if(pseudo_overlap(key, overlapping, gene_A_exons, gene_B_exons, gene_pattern) == key){
           overlap_data[key, 'automatic_classification'] = 'Delete'
           overlap_data[overlapping[[1]], 'automatic_classification'] = 'Keep as is'
         }
 
-        else if(pseudo_overlap(key, overlapping, gene_A_exons, gene_B_exons) == overlapping){
+        else if(pseudo_overlap(key, overlapping, gene_A_exons, gene_B_exons, gene_pattern) == overlapping){
           overlap_data[key, 'automatic_classification'] = 'Keep as is'
           overlap_data[overlapping[[1]], 'automatic_classification'] = 'Delete'
         }
 
-        else if(pseudo_overlap(key, overlapping, gene_A_exons, gene_B_exons) == 'exonic'){
+        else if(pseudo_overlap(key, overlapping, gene_A_exons, gene_B_exons, gene_pattern) == 'exonic'){
           overlap_data[key, 'automatic_classification'] = 'Keep as is'
           overlap_data[overlapping[[1]], 'automatic_classification'] = 'Keep as is'
         }

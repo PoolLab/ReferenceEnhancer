@@ -4,7 +4,7 @@
 \alias{OverlapResolutions}
 \title{OverlapResolutions}
 \usage{
-OverlapResolutions(genome_annotation, overlap_data)
+OverlapResolutions(genome_annotation, overlap_data, gene_pattern)
 }
 \arguments{
 \item{genome_annotation}{ENSEMBL/10x Genomics default genome annotation file (GTF).}
@@ -21,5 +21,5 @@ generates recommended actions for overlapping genes.
 \examples{
 genome_annotation <- LoadGtf("test_genes.gtf")
 gene_overlaps <- IdentifyOverlappers(genome_annotation)
-OverlapResolutions(genome_annotation, gene_overlaps)
+OverlapResolutions(genome_annotation, gene_overlaps, gene_pattern)
 }

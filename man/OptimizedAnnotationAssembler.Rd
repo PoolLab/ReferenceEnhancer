@@ -6,7 +6,6 @@
 \usage{
 OptimizedAnnotationAssembler(
   exonic_gtf,
-  premrna_gtf,
   gene_overlaps,
   gene_extension,
   gene_replacement
@@ -14,8 +13,6 @@ OptimizedAnnotationAssembler(
 }
 \arguments{
 \item{exonic_gtf}{exonic gtf}
-
-\item{premrna_gtf}{premrna gtf}
 
 \item{gene_overlaps}{overlapping genes}
 
@@ -31,8 +28,7 @@ OptimizedAnnotationAssembler
 }
 \examples{
 genome_annotation <- LoadGtf("test_genes.gtf")
-premrna_gtf <- PremrnaAnnotationGenerator(genome_annotation)
 gene_overlaps <- IdentifyOverlappers(genome_annotation)
 gene_extension <- GenerateExtensionCandidates()
-OptimizedAnnotationAssembler(genome_annotation, premrna_gtf, gene_overlaps, gene_extension)
+OptimizedAnnotationAssembler(genome_annotation, gene_overlaps, gene_extension)
 }

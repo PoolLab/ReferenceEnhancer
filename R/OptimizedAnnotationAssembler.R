@@ -1,7 +1,6 @@
 #' @title  OptimizedAnnotationAssembler
 #'
 #' @param exonic_gtf exonic gtf
-#' @param premrna_gtf premrna gtf
 #' @param gene_overlaps overlapping genes
 #' @param gene_extension gene extension
 #' @param gene_replacement gene replacement
@@ -11,29 +10,52 @@
 #'
 #' @examples
 #' genome_annotation <- LoadGtf("test_genes.gtf")
-#' premrna_gtf <- PremrnaAnnotationGenerator(genome_annotation)
 #' gene_overlaps <- IdentifyOverlappers(genome_annotation)
 #' gene_extension <- GenerateExtensionCandidates()
-#' OptimizedAnnotationAssembler(genome_annotation, premrna_gtf, gene_overlaps, gene_extension)
-OptimizedAnnotationAssembler <- function(exonic_gtf, premrna_gtf, gene_overlaps, gene_extension, gene_replacement){
-  exonic_df <- LoadGtf(exonic_gtf)
-  premrna_df  <- LoadGtf(premrna_gtf)
+#' OptimizedAnnotationAssembler(genome_annotation, gene_overlaps, gene_extension)
+OptimizedAnnotationAssembler <- function(exonic_gtf, gene_overlaps, gene_extension, gene_replacement){
 
-  overlap_data = read.csv(gene_overlaps)
-  overlap_df = data.frame(overlap_data)
+  if(gene_overlaps == "test_overlapping_gene_list.csv"){
+    gene_overlaps <- system.file("extdata", "test_overlapping_gene_list.csv", package = "ReferenceEnhancer")
+  }
+
+
+  exonic_df <- LoadGtf(exonic_gtf)
+
+  overlap_df = read.csv(gene_overlaps, header=T)
 
   new_df = exonic_df
+
+
+  ####  1. Create premRNA genome annotation from input gtf that defines transcripts as exons ####
+  ###############################################################################################
+  transcripts_df = exonic_df[exonic_df$type == "transcript",]
+  exons_df = transcripts_df # Create new dataframe to contain premrna exons
+  exons_df$type = rep("exon", nrow(exons_df)) # rename "type" from transcripts to exon
+
+  premrna_df = gdata::interleave(transcripts_df, exons_df) # interleave transript entries with exon entries
+  premrna_df$transcript_id = gsub("000000", "100000", premrna_df$transcript_id)
+  premrna_df$transcript_id = gsub("000001", "110001", premrna_df$transcript_id)
+  premrna_df$transcript_id = gsub("000002", "110002", premrna_df$transcript_id)
+  premrna_df$transcript_id = gsub("000003", "110003", premrna_df$transcript_id)
+  premrna_df$transcript_id = gsub("000004", "110004", premrna_df$transcript_id)
+  premrna_df$transcript_id = gsub("000005", "110005", premrna_df$transcript_id)
+  premrna_df$transcript_id = gsub("000006", "110006", premrna_df$transcript_id)
+  premrna_df$transcript_id = gsub("000007", "110007", premrna_df$transcript_id)
+  premrna_df$transcript_id = gsub("000008", "110008", premrna_df$transcript_id)
+  premrna_df$transcript_id = gsub("000009", "110009", premrna_df$transcript_id)
+
   rm(exonic_df)
 
-  ####  1. Delete select genes ####
+  ####  2. Delete select genes ####
   #################################
   genes_to_delete = overlap_df$genes[overlap_df$final_classification == "Delete"]
   new_df = new_df[!new_df$gene_name %in% genes_to_delete,]
 
-  ####  2. Delete select transcripts ####
+  ####  3. Delete select transcripts ####
   #######################################
   transcripts_to_delete = overlap_df$transcripts_for_deletion
-  transcripts_to_delete <- transcripts_to_delete[!is.na(transcripts_to_delete)]
+  transcripts_to_delete <- transcripts_to_delete[transcripts_to_delete!=""]
 
   transcripts_to_delete_final = transcripts_to_delete[!stringr::str_detect(transcripts_to_delete, ", ")]
 
@@ -51,11 +73,9 @@ OptimizedAnnotationAssembler <- function(exonic_gtf, premrna_gtf, gene_overlaps,
 
   new_df = new_df[!new_df$transcript_name %in% transcripts_to_delete,]
 
-  ####  3. Adjust gene coordinates ####
+  ####  4. Adjust gene coordinates ####
   #####################################
-  boundary_fix = read.csv(gene_extension)
-  #boundary_df = data.frame(boundary_fix)
-  #boundary_df <- read.csv(gene_extension)
+  boundary_fix = read.csv(gene_extension, header=T)
 
   left_genes = as.data.frame(cbind(boundary_fix$genes[!is.na(boundary_fix$update_start)], boundary_fix$update_start[!is.na(boundary_fix$update_start)]))
 
@@ -99,13 +119,13 @@ OptimizedAnnotationAssembler <- function(exonic_gtf, premrna_gtf, gene_overlaps,
 
   }
 
-  #### 4. Add pre-mRNA transcripts to genes not in the gene overlap list ####
+  #### 5. Add pre-mRNA transcripts to genes not in the gene overlap list ####
   ############################################################################
   # Explanation: Cellranger --include-introns mode unfortunately does not pick up on many intronic reads (unclear why despite lengthy correspondence with their support). I can pick those up however if I add the pre-mRNA transcripts to respective genes as exons with new transcript_id values.
 
   ## Genes to modify
 
-  overlap_df$genes # genes to exclude from premrna reference appending
+  #overlap_df$genes # genes to exclude from premrna reference appending
 
   genes_to_append = unique(new_df$gene_name)
   genes_to_append = setdiff(genes_to_append, overlap_df$genes)
@@ -134,7 +154,7 @@ OptimizedAnnotationAssembler <- function(exonic_gtf, premrna_gtf, gene_overlaps,
     new_df = rbind(first_section, insert, last_section)
   }
 
-  #### 5. Rename desired genes ####
+  #### 6. Rename desired genes ####
   #################################
   # Rename desired genes (example from mouse genome): "Cers1"==>"Cers1_Gdf1" // "Chtf8" ==> "Chtf8_Derpc" // "Insl3" ==> "Insl3_Jak3" // "Pcdhga1" ==> "Pcdhg_all" // "Pcdha1" ==> "Pcdha_all" // "Ugt1a10" ==> "Ugt1a_all" // "4933427D14Rik" ==> "4933427D14Rik_Gm43951" // "Mkks" ==> "Mkks_plus"
   if(missing(gene_replacement)){
@@ -145,7 +165,7 @@ OptimizedAnnotationAssembler <- function(exonic_gtf, premrna_gtf, gene_overlaps,
       gene_replacement <- system.file("extdata", "test_gene_replacement.csv", package = "ReferenceEnhancer")
           }
 
-    gene_replacement <- read.csv(gene_replacement)
+    gene_replacement <- read.csv(gene_replacement, header=T)
 
     old_names <- gene_replacement[,'old_name']
     new_names <- gene_replacement[,'new_name']
@@ -157,7 +177,7 @@ OptimizedAnnotationAssembler <- function(exonic_gtf, premrna_gtf, gene_overlaps,
     }
   }
 
-  #### 6. Export object to gtf file ####
+  #### 7. Export object to gtf file ####
   ######################################
   new_gtf = GenomicRanges::makeGRangesFromDataFrame(new_df, keep.extra.columns=TRUE)
 
