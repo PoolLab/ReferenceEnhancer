@@ -1,0 +1,81 @@
+# ReferenceEnhancer
+
+The goal of ReferenceEnhancer is to generate a scRNA-seq optimized transcriptomic reference.
+
+Generating a scRNA-seq optimized transcriptomic reference requires optimizing the genome annotation ("xxx.gtf") file that transcriptomic references are based on.
+
+The following three aspects of genome annotations need to be optimized: A) Resolving gene overlap derived read loss; B) Recovering intergenic reads from 3' un-annotated exons; and C) Recovering intronic reads.
+
+After optimizing and assembling the genome annotation, you can use "cellranger mkref" pipeline to assemble the optimized transcriptomic reference for mapping sequencing read data and compiling gene-cell matrices with the "cellranger count" (or other) pipeline.
+
+## Installation
+
+<<<<<<< HEAD
+You can install ReferenceEnhancer like so:
+=======
+You can install the development version of ReferenceEnhancer as follows:
+>>>>>>> 67ca0da0bac1c232f772d39eff8f1d99ac69b6d9
+
+``` r
+install.packages("devtools")
+require(devtools)
+install_github("PoolLab/ReferenceEnhancer")
+```
+
+## Example
+
+<<<<<<< HEAD
+This is a sample workflow of the package:
+=======
+This is the basic workflow for optimizing a genome annotation for single-cell RNA-seq work using ReferenceEnhancer:
+>>>>>>> 67ca0da0bac1c232f772d39eff8f1d99ac69b6d9
+
+1. Load ReferenceEnhancer and import ENSEMBL/10x Genomics default genome annotation file (GTF). 
+
+This file can be downloaded from 10x Genomics provided reference transcriptome "gene" folder at "https://support.10xgenomics.com/single-cell-gene-expression/software/downloads/latest" or Ensembl.org if wish to customize more.
+
+For testing, we have provided a sample file.
+```{r example}
+library(ReferenceEnhancer)
+genome_annotation <- LoadGtf("test_genes.gtf")
+```
+
+2. Identify all overlapping genes based on the ENSEMBL/10x Genomics default genome annotation file (GTF), rank-order them according to the number of gene overlaps.
+
+Prioritize this gene list for manual curation focusing on exonically overlapping genes.
+The function saves the list of overlapping genes in working directory as overlapping_gene_list.csv.
+```{r example}
+gene_overlaps <- IdentifyOverlappers(genome_annotation)
+```
+
+3. Generate recommended actions for overlapping genes based on original genome annotation .gtf file and a list of overlapping genes.
+
+The function updates overlapping_gene_list.csv file with added recommendations.
+```{r example}
+OverlapResolutions(genome_annotation, gene_overlaps)
+```
+
+4. Extract intergenic reads from Cell Ranger aligned bam file.
+The function saves extracted intergenic reads in working directory as intergenic_reads.bed.
+```{r example}
+IsolateIntergenicReads("test_bam.bam", "test_index.bam.bai")
+```
+
+5. Generate gene boundaries in order to assign intergenic reads to a specific gene. The function save resulting in working directory as gene_ranges.bed.
+
+Note: This step runs partially in bash/linux terminal. Before this step, make sure that bedops (https://bedops.readthedocs.io/en/latest/) has been installed to your computer.
+```{r example}
+GenerateGeneLocationBed(genome_annotation)
+```
+
+6. Identify candidate genes for extension with excess 3' intergenic reads and create a rank ordered list of genes as a function of 3' intergenic read mapping within 10kb of known gene end. A rank ordered list of gene extension candidates is saved in working directory as gene_extension_candidates.csv.
+
+Note: This step runs partially in bash/linux terminal. Before this step, make sure that bedtools (https://bedtools.readthedocs.io/en/latest/content/installation.html) has been installed to your computer and that it has been added to to the path in your R environment.
+```{r example}
+GenerateExtensionCandidates()
+```
+
+7. Create the final optimized annotation file. The function saves the result in working directory as optimized_reference.gtf.
+```{r example}
+OptimizedAnnotationAssembler("test_genes.gtf", "premrna.gtf", "overlapping_gene_list.csv", "gene_extension_candidates.csv", "test_gene_replacement.csv")
+```
