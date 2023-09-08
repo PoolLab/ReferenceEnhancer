@@ -6,18 +6,22 @@
 \usage{
 GenerateExtensionCandidates(bedtools_loc = NULL)
 }
+\arguments{
+\item{bedops_loc}{Optional. Location of bedtools in file system.}
+}
 \value{
-Rank ordered list of gene extension candidates saved to working directory as gene_extension_candidates.csv
+Rank ordered list of gene extension candidates saved to working directory
+as “gene_extension_candidates.csv”.
 }
 \description{
-Identifies candidate genes for extension with excess 3' intergenic reads
-and create a rank ordered list of genes as a function of 3' intergenic read
-mapping within 10kb of known gene end. You can use this as a prioritized gene
-list for gene extension to examine in Integrated Genomics Viewer.
+Identifies candidate genes for extension with excess 3' intergenic
+reads and creates a rank ordered list of genes as a function of 3' intergenic
+read mapping within 10kb of known gene end. You can use this as a prioritized
+gene list for gene extension to examine in Integrated Genomics Viewer.
 
-Note: It runs partially in bash/linux terminal. Make sure bedtools is installed and
-in PATH variable in Linux or MacOS.
+Note: It runs partially in Bash/Linux terminal. Make sure bedtools is installed
+and provide a path in the function if you get an error message.
 }
 \examples{
-GenerateExtensionCandidates(bedtools_loc)
+GenerateExtensionCandidates(bedtools_loc = NULL)
 }

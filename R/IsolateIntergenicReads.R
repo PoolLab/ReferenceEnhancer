@@ -1,26 +1,38 @@
 #' @title IsolateIntergenicReads
 #'
 #' @description Intergenic reads are extracted from Cell Ranger aligned bam file.
-#' Intergenic reads can be identified by two features: their read identity tag RE = "I"
-#' (for intergenic) OR their RE=E (for exonic) with AN = <some gene>. The latter reads
-#' are in fact intergenic reads since Cell Ranger wrongly classifies reads mapping
-#' antisense to an exon as exonic (i.e. RE="E").
-#' The false exonic reads can be recognized and captured as proper intergenic
-#' reads by extracting two kinds of reads (RE=I and RE=E & AN=<something else than NA).
-#' Also, removing duplicates command in GenomicAlignments package does not work for
-#' intergenic (nor for intronic) reads. Duplicate and corrupt read removal has to
-#' be done manually (i.e. make sure cellular and molecular barcodes have specified
-#' lengths and duplicate barcodes removed).
+#' Use a scRNA-seq dataset of interest that has been aligned to the unoptimized
+#' genome reference with the Cell Ranger count pipeline. Intergenic reads can be
+#' identified by two features: their read identity tag RE = "I" (for intergenic)
+#' OR their RE=E (for exonic) with AN = <some gene>. The latter reads are in fact
+#' intergenic reads since Cell Ranger wrongly classifies reads mapping antisense
+#' to an exon as exonic (i.e. RE="E"). The false exonic reads can be recognized
+#' and captured as proper intergenic reads by extracting two kinds of reads
+#' (RE=I and RE=E & AN=<something else than NA). Also, removing duplicates command
+#' in GenomicAlignments package does not work for intergenic (nor for intronic) reads.
+#' Duplicate and corrupt read removal has to be done manually (i.e. make sure cellular
+#' and molecular barcodes have specified lengths and duplicate barcodes removed).
 #'
-#' @param bam_file_name Cell Ranger aligned bam file
-#' @param index_file_name Cell Ranger aligned index file
+#' Note that bam files can often be many tens of gigabytes and thus this step is
+#' highly memory intensive.
 #'
-#' @return Saves extracted intergenic reads as a separate file (intergenic_reads.bed)
+#' @param bam_file_name Path to Cell Ranger generated bam file (run Cell Ranger
+#' count pipeline on sequencing data of interest and aligning it to the unoptimized
+#' transcriptomic reference).
+#' @param index_file_name Path to Cell Ranger generated bam.bai file (run Cell Ranger
+#' count pipeline on sequencing data of interest and aligning it to the unoptimized
+#' transcriptomic reference).
+#'
+#' @param barcode_length Optional. Specifies the length of barcode needed. If not specified, defaults to 26.
+#'
+#' @return Saves extracted intergenic reads as a separate file (“intergenic_reads.bed”)
 #' @export
 #'
 #' @examples
-#' IsolateIntergenicReads("test_bam.bam", "test_index.bam.bai")
-IsolateIntergenicReads <- function(bam_file_name, index_file_name){
+#' IsolateIntergenicReads(
+#' bam_file_name = "test_bam.bam",
+#' index_file_name = "test_index.bam.bai")
+IsolateIntergenicReads <- function(bam_file_name, index_file_name, barcode_length = NULL){
 
   bamfile = bam_file_name
   indexfile = index_file_name
@@ -43,7 +55,13 @@ IsolateIntergenicReads <- function(bam_file_name, index_file_name){
   seq_data$CB = stringr::str_sub(seq_data$CB, end=-3) # Remove last two elements of the cell barcode. This is an artifact ("-1") added by Cell Ranger software.
   seq_data$barcodes = paste(seq_data$CB, seq_data$UB, sep="") # Assemble the cell barcode / molecular barcode list. Each read included in the gene_cell matrix will have a unique index comprised of the two.
 
-  a = nchar(seq_data$barcodes)==26 # logical vector for selecting reads with non-corrupt barcodes
+  if(is.null(barcode_length)){
+    a = nchar(seq_data$barcodes)==26 # logical vector for selecting reads with non-corrupt barcodes
+  }
+  else{
+    a = nchar(seq_data$barcodes)==barcode_length
+  }
+
   seq_data = seq_data[a,] # exclude all reads that don't have an intact full cellular and molecular barcodes
   length(unique(seq_data$barcodes)) # Determine # of unique intergenic reads
   seq_data = seq_data[!duplicated(seq_data$barcodes),] # exclude all duplicated intergenic reads

@@ -7,23 +7,29 @@
 GenerateGeneLocationBed(genome_annotation, bedops_loc = NULL)
 }
 \arguments{
-\item{genome_annotation}{Genome annotation file in .gtf format.}
+\item{genome_annotation}{Genome annotation DataFrame loaded with LoadGtf()
+function in this package.}
+
+\item{bedops_loc}{Optional. Location of BEDOPS in file system.}
 }
 \value{
-Saves gene_ranges.bed in working directory.
+Saves “gene_ranges.bed” in working directory.
 }
 \description{
 Makes a bed file with gene boundaries, which is required for
-assigning intergenic reads to a specific gene.
+assigning intergenic reads to a specific gene and discovering genes with large
+amounts of intergenic reads near its 3’ gene end.
 
-Note: This step is partially run in linux Terminal in Bash and requires
-bedtools (https://bedtools.readthedocs.io/en/latest/content/installation.html).
-Put bedtools in PATH after installing.
+Note 1: This step is partially run in Linux Terminal in Bash and requires BEDOPS
+(https://bedops.readthedocs.io/en/latest/). Make sure BEDOPS is installed and
+provide a path to BEDOPS in the function if you get an error message.
 
-In linux terminal, navigate to folder with the genome annotation of interest.
-Assuming that it is named "genes.gtf" per 10x Genomics convention.
+Note 2: In Linux terminal, navigate to folder with the genome annotation of interest.
+The annotation file should be named "genes.gtf" per 10x Genomics convention.
 }
 \examples{
-genome_annotation <- LoadGtf("test_genes.gtf")
-GenerateGeneLocationBed(genome_annotation, bedops_loc)
+genome_annotation <- LoadGtf(unoptimized_annotation_path = "test_genes.gtf")
+GenerateGeneLocationBed(
+genome_annotation = genome_annotation,
+bedops_loc = NULL)
 }

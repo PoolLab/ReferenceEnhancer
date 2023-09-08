@@ -1,19 +1,12 @@
 Package: ReferenceEnhancer
-Title: Generates A ScRNA-seq Optimized Transcriptomic Reference.
-Version: 0.0.0.9000
+Title: Package For Optimizing And Assembling Genome Annotations For 3’ Single-Cell RNA-Sequencing Analysis
+Version: 0.9
 Authors@R: 
-    person("Allan-Hermann", "Pool", , "allan-hermann.pool@utsouthwestern.edu", role = c("aut", "cre"))
     person("Helen", "Poldsam", , "helen.poldsam@utsouthwestern.edu", role = c("aut", "cre"))
-Description: Generating a scRNA-seq optimized transcriptomic reference requires optimizing 
-  the genome annotation ("xxx.gtf") file that transcriptomic references are based on.  The 
-  following three aspects of genome annotations need to be optimized:
-  A) Resolving gene overlap derived read loss;
-  B) Recovering intergenic reads from 3’ un-annotated exons; and
-  C) Recovering intronic reads.
-  After optimizing and assembling the genome annotation, you can use "cellranger mkref"
-  pipeline to assemble the optimized transcriptomic reference for mapping sequencing read
-  data and compiling gene-cell matrices with the "cellranger count" (or other) pipeline.
-License: MIT + file LICENSE
+    person("Allan-Hermann", "Pool", , "allan-hermann.pool@utsouthwestern.edu", role = c("aut", "cre"))
+Description: ReferenceEnhancer contains a set of tools for optimizing genome annotations for droplet based 3’ single-cell RNA-sequencing (10x Genomics, Dropseq etc.) data analysis. Regular genome annotations and transcriptomic references generated based on them come with several problems causing discarded sequencing data from final gene expression estimates (outlined in detail in https://www.biorxiv.org/content/10.1101/2022.04.26.489449v1). These include read loss stemming from gene overlaps, sequencing reads mapping to 3’ unannoated exons as well as introns. ReferenceEnhancer enables fixing these issues and assembling optimized genome annotations that circumvent these problems and recover the discarded gene expression data.
+URL: https://github.com/PoolLab/ReferenceEnhancer 
+License: Artistic-2.0
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3

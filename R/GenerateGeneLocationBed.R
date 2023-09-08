@@ -1,23 +1,28 @@
 #' @title GenerateGeneLocationBed
 #'
 #' @description Makes a bed file with gene boundaries, which is required for
-#' assigning intergenic reads to a specific gene.
+#' assigning intergenic reads to a specific gene and discovering genes with large
+#' amounts of intergenic reads near its 3’ gene end.
 #'
-#' Note: This step is partially run in linux Terminal in Bash and requires
-#' bedtools (https://bedtools.readthedocs.io/en/latest/content/installation.html).
-#' Put bedtools in PATH after installing.
+#' Note 1: This step is partially run in Linux Terminal in Bash and requires BEDOPS
+#' (https://bedops.readthedocs.io/en/latest/). Make sure BEDOPS is installed and
+#' provide a path to BEDOPS in the function if you get an error message.
 #'
-#' In linux terminal, navigate to folder with the genome annotation of interest.
-#' Assuming that it is named "genes.gtf" per 10x Genomics convention.
+#' Note 2: In Linux terminal, navigate to folder with the genome annotation of interest.
+#' The annotation file should be named "genes.gtf" per 10x Genomics convention.
 #'
-#' @param genome_annotation Genome annotation file in .gtf format.
+#' @param genome_annotation Genome annotation DataFrame loaded with LoadGtf()
+#' function in this package.
+#' @param bedops_loc Optional. Location of BEDOPS in file system.
 #'
-#' @return Saves gene_ranges.bed in working directory.
+#' @return Saves “gene_ranges.bed” in working directory.
 #' @export
 #'
 #' @examples
-#' genome_annotation <- LoadGtf("test_genes.gtf")
-#' GenerateGeneLocationBed(genome_annotation, bedops_loc)
+#' genome_annotation <- LoadGtf(unoptimized_annotation_path = "test_genes.gtf")
+#' GenerateGeneLocationBed(
+#' genome_annotation = genome_annotation,
+#' bedops_loc = NULL)
 GenerateGeneLocationBed <- function(genome_annotation, bedops_loc = NULL){
   gene_ranges_df <- genome_annotation
   gene_ranges_df <- gene_ranges_df[gene_ranges_df$type == "gene",] # Extract all "gene" entries in the genome annotation ot a new variable
@@ -27,16 +32,15 @@ GenerateGeneLocationBed <- function(genome_annotation, bedops_loc = NULL){
   ## Add "transcript_id """ column to the gtf file to make it compatible with bedtools format (through terminal)
   system('awk \'{ if ($0 ~ "transcript_id") print $0; else print $0" transcript_id \"\";"; }\' gene_ranges.gtf > gene_ranges1.gtf')
 
-  ## Convert reference gtf into bed with bedops (make sure bedops is in the PATH variable for linux or MAcOS)
-  if(length(bedops_loc) != 0){
-    old_path <- Sys.getenv("PATH")
-    Sys.setenv(PATH = paste(old_path, bedops_loc, sep = ":"))
-  }
-
+  ## Check for bedops
+  if(is.null(bedops_loc)){
+    if(is.na(unlist(strsplit(system("whereis bedops", intern = TRUE),": "))[2])){
+      print("Didn't find bedops. Please install bedops or provide a path to bedops.")
+    }
   else{
     old_path <- Sys.getenv("PATH")
-    Sys.setenv(PATH = paste(old_path, "/usr/bin/bedops", sep = ":"))
-  }
+    Sys.setenv(PATH = paste(old_path, bedops_loc, sep = ":"))
+    }}
 
   system('gtf2bed < gene_ranges1.gtf > gene_ranges.bed') # Creates a bed file with gene boundaries
 

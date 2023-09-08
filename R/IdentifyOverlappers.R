@@ -1,18 +1,18 @@
 #' @title IdentifyOverlappers
 #'
-#' @description Identifies all overlapping genes based on the ENSEMBL/10x Genomics
-#' default genome annotation file (GTF), rank-order them according to the number of gene overlaps.
-#' Prioritize this gene list for manual curation focusing on exonically overlapping genes.
-#' Saves the list of overlapping genes in working directory (overlapping_gene_list.csv).
+#' @description Identifies all same-strand overlapping genes based on the unoptimized
+#' genome annotation file in GTF, rank-orders them according to the number of gene
+#' overlaps. Saves the list of overlapping genes in working directory as “overlapping_gene_list.csv”.
 #'
-#' @param genome_annotation Genome annotation file in .gtf format.
+#' @param genome_annotation Unoptimized genome annotation file in GTF. Could be
+#' obtained from Ensembl, Refseq, 10x Genomics or elsewhere.
 #'
-#' @return Rank-ordered gene list of same-strand overlapping genes (gene_overlaps).
+#' @return Rank-ordered gene list of same-strand overlapping genes (“overlapping_gene_list.csv”).
 #' @export
 #'
 #' @examples
-#' genome_annotation <- LoadGtf("test_genes.gtf")
-#' IdentifyOverlappers(genome_annotation)
+#' genome_annotation <- LoadGtf(unoptimized_annotation_path = "test_genes.gtf")
+#' IdentifyOverlappers(genome_annotation = genome_annotation)
 IdentifyOverlappers <- function(genome_annotation){
 
   genes_df = genome_annotation[genome_annotation$type == "gene",1:13] # Extract all "gene" entries in the genome annotation to a new variable

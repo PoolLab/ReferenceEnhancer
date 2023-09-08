@@ -5,30 +5,73 @@
 \title{OptimizedAnnotationAssembler}
 \usage{
 OptimizedAnnotationAssembler(
-  exonic_gtf,
+  unoptimized_annotation_path,
   gene_overlaps,
   gene_extension,
   gene_replacement
 )
 }
 \arguments{
-\item{exonic_gtf}{exonic gtf}
+\item{unoptimized_annotation_path}{path to unoptimized genome annotation file in GTF.}
 
-\item{gene_overlaps}{overlapping genes}
+\item{gene_overlaps}{overlapping genes list generated with IdentifyOverlappers function.}
 
-\item{gene_extension}{gene extension}
+\item{gene_extension}{list of gene extension candidates generated with GenerateExtensionCandidates function.}
 
-\item{gene_replacement}{gene replacement}
+\item{gene_replacement}{manually generated list of gene names to be replaced in .csv format. Column names: old_name, new_name. Optional.}
 }
 \value{
-optimized annotation
+Single-cell RNA-seq optimized genome annotation that can be used to
+generate the transcriptomic reference (e.g. with cellranger mkref or
+STAR --runMode genomeGenerate pipelines) for mapping single-cell sequencing data.
 }
 \description{
-OptimizedAnnotationAssembler
+OptimizedAnnotationAssembler generates the scRNA-seq optimized genome annotation.
+The resulting optimized genome annotation can be used to generate the transcriptomic
+reference for mapping single-cell sequencing data (e.g. with cellranger mkref
+or STAR --runMode genomeGenerate). Note that completing this step is time intensive
+and can sometimes take 12-24 hours depending on the length of the annotation
+to be optimized.
+This function goes through the following steps:
+0. Load data and libraries:
+\itemize{
+\item genome annotation file to be optimized in GTF.
+\item "overlapping_gene_list.csv" file specifying how to resolve gene overlap
+derived issues. "Delete" entries in $final_classification field mark genes
+for deletion. Transcript names in $transcripts_for_deletion mark specific
+transcripts for deletion.
+\item "gene_extension_candidates.csv" specifying updated gene boundaries for
+incorporating intergenic reads.
+\item "rename_genes.csv" specifying gene names to be replaced and new names
+(under $old_names and $new_names fields, respectively).
+}
+\enumerate{
+\item Resolve "self-overlapping" gene (duplicate gene_ids) derived issues.
+Required for making references compatible with multiome workflows.
+\item Creates pre-mRNA genome annotation from input genome annotation. This step
+extracts all transcript entries from the genome annotation and defines them
+as full length exons with new transcript IDs and corresponding transcripts.
+This allows to capture many intronically mapped reads that otherwise get discarded.
+\item Gene deletion step: Deletes all annotation entries for genes destined for
+deletion (has "Delete" entry in $final_classification field of
+"overlapping_gene_list.csv".
+\item Transcript deletion step: Deletes all transcripts destined for deletion
+(transcript names listed in the "transcripts_for_deletion" column in
+"overlapping_gene_list.csv".
+\item Gene coordinate adjustment step: Replaces the left most or right most
+coordinate of the first exon of a gene in genome annotation if there is a
+coordinate in columns $new_left or $new_right in the
+"gene_extension_candidates.csv".
+\item Adds pre-mRNA reads to all genes not in the gene overlap list.
+\item Renames genes to avoid discarding expression data with near perfect terminal
+exon overlap.
+\item Saves the optimized genome annotation in a new GTF file.
+}
 }
 \examples{
-genome_annotation <- LoadGtf("test_genes.gtf")
-gene_overlaps <- IdentifyOverlappers(genome_annotation)
-gene_extension <- GenerateExtensionCandidates()
-OptimizedAnnotationAssembler(genome_annotation, gene_overlaps, gene_extension)
+OptimizedAnnotationAssembler(
+unoptimized_annotation_path = "test_genes.gtf",
+gene_overlaps = "test_overlapping_gene_list.csv",
+gene_extension = "./gene_extension_candidates.csv",
+gene_replacement = "test_gene_replacement.csv")
 }

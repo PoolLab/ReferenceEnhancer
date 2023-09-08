@@ -4,29 +4,41 @@
 \alias{IsolateIntergenicReads}
 \title{IsolateIntergenicReads}
 \usage{
-IsolateIntergenicReads(bam_file_name, index_file_name)
+IsolateIntergenicReads(bam_file_name, index_file_name, barcode_length = NULL)
 }
 \arguments{
-\item{bam_file_name}{Cell Ranger aligned bam file}
+\item{bam_file_name}{Path to Cell Ranger generated bam file (run Cell Ranger
+count pipeline on sequencing data of interest and aligning it to the unoptimized
+transcriptomic reference).}
 
-\item{index_file_name}{Cell Ranger aligned index file}
+\item{index_file_name}{Path to Cell Ranger generated bam.bai file (run Cell Ranger
+count pipeline on sequencing data of interest and aligning it to the unoptimized
+transcriptomic reference).}
+
+\item{barcode_length}{Optional. Specifies the length of barcode needed. If not specified, defaults to 26.}
 }
 \value{
-Saves extracted intergenic reads as a separate file (intergenic_reads.bed)
+Saves extracted intergenic reads as a separate file (“intergenic_reads.bed”)
 }
 \description{
 Intergenic reads are extracted from Cell Ranger aligned bam file.
-Intergenic reads can be identified by two features: their read identity tag RE = "I"
-(for intergenic) OR their RE=E (for exonic) with AN = \if{html}{\out{<some gene>}}. The latter reads
-are in fact intergenic reads since Cell Ranger wrongly classifies reads mapping
-antisense to an exon as exonic (i.e. RE="E").
-The false exonic reads can be recognized and captured as proper intergenic
-reads by extracting two kinds of reads (RE=I and RE=E & AN=<something else than NA).
-Also, removing duplicates command in GenomicAlignments package does not work for
-intergenic (nor for intronic) reads. Duplicate and corrupt read removal has to
-be done manually (i.e. make sure cellular and molecular barcodes have specified
-lengths and duplicate barcodes removed).
+Use a scRNA-seq dataset of interest that has been aligned to the unoptimized
+genome reference with the Cell Ranger count pipeline. Intergenic reads can be
+identified by two features: their read identity tag RE = "I" (for intergenic)
+OR their RE=E (for exonic) with AN = \if{html}{\out{<some gene>}}. The latter reads are in fact
+intergenic reads since Cell Ranger wrongly classifies reads mapping antisense
+to an exon as exonic (i.e. RE="E"). The false exonic reads can be recognized
+and captured as proper intergenic reads by extracting two kinds of reads
+(RE=I and RE=E & AN=<something else than NA). Also, removing duplicates command
+in GenomicAlignments package does not work for intergenic (nor for intronic) reads.
+Duplicate and corrupt read removal has to be done manually (i.e. make sure cellular
+and molecular barcodes have specified lengths and duplicate barcodes removed).
+
+Note that bam files can often be many tens of gigabytes and thus this step is
+highly memory intensive.
 }
 \examples{
-IsolateIntergenicReads("test_bam.bam", "test_index.bam.bai")
+IsolateIntergenicReads(
+bam_file_name = "test_bam.bam",
+index_file_name = "test_index.bam.bai")
 }
